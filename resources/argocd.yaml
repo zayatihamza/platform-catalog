@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: argocd
+  description: Argo CD - outil de déploiement continu GitOps du cluster OKD
+  tags:
+    - gitops
+    - cd
+    - platform-tool
+  links:
+    - url: https://argocd-server-argocd.apps.okd.3s.lab/
+      title: Argo CD Console
+      icon: cloud
+spec:
+  type: platform-tool
+  owner: team-online-boutique
+  system: online-boutique

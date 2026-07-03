@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: sonarqube
+  description: SonarQube - analyse de qualité et de sécurité du code source
+  tags:
+    - quality
+    - security
+    - platform-tool
+  links:
+    - url: https://sonarqube-sonarqube.apps.okd.3s.lab/
+      title: SonarQube Console
+      icon: cloud
+spec:
+  type: platform-tool
+  owner: team-online-boutique
+  system: online-boutique

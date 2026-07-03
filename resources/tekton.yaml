@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: tekton
+  description: Tekton Pipelines - moteur CI/CD du cluster OKD (build, test, scan, push)
+  tags:
+    - ci
+    - pipeline
+    - platform-tool
+  links:
+    - url: https://tekton-dashboard-tekton-pipelines.apps.okd.3s.lab/
+      title: Tekton Dashboard
+      icon: cloud
+spec:
+  type: platform-tool
+  owner: team-online-boutique
+  system: online-boutique

@@ -1,0 +1,17 @@
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: keycloak
+  description: Keycloak - fournisseur d'identité SSO pour l'authentification OKD/RHDH
+  tags:
+    - sso
+    - identity
+    - platform-tool
+  links:
+    - url: https://keycloak.apps.okd.3s.lab/
+      title: Keycloak Admin Console
+      icon: cloud
+spec:
+  type: platform-tool
+  owner: team-online-boutique
+  system: online-boutique
