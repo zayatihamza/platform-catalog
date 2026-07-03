@@ -1,0 +1,12 @@
+apiVersion: backstage.io/v1alpha1
+kind: Location
+metadata:
+  name: platform-catalog-entities
+spec:
+  targets:
+    - ./systems/online-boutique.yaml
+    - ./groups/team-online-boutique.yaml
+    - ./resources/argocd.yaml
+    - ./resources/tekton.yaml
+    - ./resources/sonarqube.yaml
+    - ./resources/keycloak.yaml
