@@ -25,13 +25,11 @@ spec:
         serviceName:
           title: Nom du service
           type: string
-          description: "Nom du microservice (ex: frontend, adservice)"
           pattern: '^[a-z0-9-]+$'
 
         repoUrl:
           title: URL du repo GitHub
           type: string
-          description: "Lien du repo GitHub existant contenant le code (monorepo Online Boutique)"
           ui:field: RepoUrlPicker
           ui:options:
             allowedHosts:
