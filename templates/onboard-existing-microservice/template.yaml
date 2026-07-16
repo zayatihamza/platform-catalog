@@ -30,10 +30,8 @@ spec:
         repoUrl:
           title: URL du repo GitHub
           type: string
-          ui:field: RepoUrlPicker
-          ui:options:
-            allowedHosts:
-              - github.com
+          description: "Lien du repo GitHub contenant le code source (monorepo Online Boutique)"
+          default: "https://github.com/zayatihamza/microservices-demo"
 
         namespace:
           title: Namespace de déploiement
