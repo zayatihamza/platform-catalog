@@ -1,0 +1,39 @@
+# À copier manuellement dans le tableau `triggers` du fichier
+# github-listener.yaml (EventListener, namespace cicd)
+- name: trigger-${{values.SERVICE_NAME}}
+  bindings:
+    - kind: TriggerBinding
+      ref: github-push-binding
+    - kind: TriggerBinding
+      ref: sonarqube-token-binding
+    - kind: TriggerBinding
+      ref: cel-extensions-binding
+  interceptors:
+    - ref:
+        kind: ClusterInterceptor
+        name: github
+      params:
+        - name: secretRef
+          value:
+            secretKey: secret
+            secretName: github-webhook-secret
+        - name: eventTypes
+          value: ["push"]
+    - ref:
+        kind: ClusterInterceptor
+        name: cel
+      params:
+        - name: filter
+          value: >-
+            body.ref == 'refs/heads/main' && body.commits.exists(c,
+            c.added.exists(f, f.startsWith('src/${{values.SERVICE_NAME}}/')) ||
+            c.modified.exists(f, f.startsWith('src/${{values.SERVICE_NAME}}/')) ||
+            c.removed.exists(f, f.startsWith('src/${{values.SERVICE_NAME}}/')))
+        - name: overlays
+          value:
+            - key: service_name
+              expression: "'${{values.SERVICE_NAME}}'"
+            - key: sonar_project_key
+              expression: "'online-boutique-${{values.SERVICE_NAME}}'"
+  template:
+    ref: microservice-pipeline-template

@@ -10,3 +10,4 @@ spec:
     - ./resources/tekton.yaml
     - ./resources/sonarqube.yaml
     - ./resources/keycloak.yaml
+    - ./templates/onboard-existing-microservice/template.yaml

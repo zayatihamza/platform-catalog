@@ -1,0 +1,11 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: ${{values.serviceName}}
+  annotations:
+    github.com/project-slug: ${{values.repoUrl}}
+spec:
+  type: service
+  owner: platform-team
+  lifecycle: production
+  system: online-boutique

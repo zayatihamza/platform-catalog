@@ -1,0 +1,126 @@
+apiVersion: scaffolder.backstage.io/v1beta3
+kind: Template
+metadata:
+  name: onboard-existing-microservice
+  title: Onboard Existing Microservice
+  description: >
+    Branche un microservice existant sur la plateforme : ajoute son
+    catalog-info, génère le snippet de Trigger Tekton (à fusionner dans
+    l'EventListener) et l'Application ArgoCD.
+  tags:
+    - paas
+    - tekton
+    - argocd
+spec:
+  owner: platform-team
+  type: service
+
+  parameters:
+    - title: Informations du service
+      required:
+        - serviceName
+        - repoUrl
+        - namespace
+      properties:
+        serviceName:
+          title: Nom du service
+          type: string
+          description: Nom du microservice (ex: frontend, adservice)
+          pattern: '^[a-z0-9-]+$'
+
+        repoUrl:
+          title: URL du repo GitHub
+          type: string
+          description: Lien du repo GitHub existant contenant le code (monorepo Online Boutique)
+          ui:field: RepoUrlPicker
+          ui:options:
+            allowedHosts:
+              - github.com
+
+        namespace:
+          title: Namespace de déploiement
+          type: string
+          description: Namespace OKD cible pour ArgoCD
+          enum:
+            - online-boutique-dev
+            - online-boutique-test
+            - online-boutique-prod
+          default: online-boutique-dev
+
+  steps:
+    - id: generate-catalog-info
+      name: Générer catalog-info.yaml
+      action: fetch:template
+      input:
+        url: ./skeletons/catalog-info
+        targetPath: ./catalog
+        values:
+          serviceName: ${{ parameters.serviceName }}
+          repoUrl: ${{ parameters.repoUrl }}
+
+    - id: generate-trigger-snippet
+      name: Générer le snippet Trigger Tekton
+      action: fetch:template
+      input:
+        url: ./skeletons/tekton-trigger
+        targetPath: ./tekton-trigger
+        values:
+          SERVICE_NAME: ${{ parameters.serviceName }}
+
+    - id: generate-argocd-app
+      name: Générer l'Application ArgoCD
+      action: fetch:template
+      input:
+        url: ./skeletons/argocd-application
+        targetPath: ./argocd
+        values:
+          SERVICE_NAME: ${{ parameters.serviceName }}
+          NAMESPACE: ${{ parameters.namespace }}
+          REPO_URL: ${{ parameters.repoUrl }}
+
+    - id: push-catalog-info
+      name: Pousser catalog-info.yaml
+      action: publish:github:pull-request
+      input:
+        repoUrl: https://github.com/zayatihamza/platform-catalog
+        branchName: add-catalog-${{ parameters.serviceName }}
+        title: "Ajout catalog-info pour ${{ parameters.serviceName }}"
+        description: Ajouté automatiquement par le template Developer Hub
+        sourcePath: ./catalog
+
+    - id: push-trigger-snippet
+      name: Pousser le snippet Trigger
+      action: publish:github:pull-request
+      input:
+        repoUrl: https://github.com/zayatihamza/platform-catalog
+        branchName: add-trigger-${{ parameters.serviceName }}
+        title: "⚠️ À fusionner manuellement : Trigger pour ${{ parameters.serviceName }}"
+        description: >
+          Ce snippet doit être copié dans le tableau `triggers` du fichier
+          github-listener.yaml (EventListener existant, namespace cicd).
+        sourcePath: ./tekton-trigger
+
+    - id: push-argocd
+      name: Pousser l'Application ArgoCD
+      action: publish:github:pull-request
+      input:
+        repoUrl: https://github.com/zayatihamza/gitops-repo
+        branchName: add-argocd-${{ parameters.serviceName }}
+        title: "Ajout Application ArgoCD pour ${{ parameters.serviceName }}"
+        sourcePath: ./argocd
+
+    - id: register
+      name: Enregistrer le composant dans le Catalog
+      action: catalog:register
+      input:
+        repoContentsUrl: ${{ steps['push-catalog-info'].output.contentsUrl }}
+        catalogInfoPath: /catalog-info.yaml
+
+  output:
+    links:
+      - title: PR catalog-info
+        url: ${{ steps['push-catalog-info'].output.remoteUrl }}
+      - title: PR Trigger Tekton (à fusionner manuellement)
+        url: ${{ steps['push-trigger-snippet'].output.remoteUrl }}
+      - title: PR Application ArgoCD
+        url: ${{ steps['push-argocd'].output.remoteUrl }}
