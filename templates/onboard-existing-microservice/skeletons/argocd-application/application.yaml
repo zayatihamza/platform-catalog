@@ -6,9 +6,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/zayatihamza/gitops-repo
+    repoURL: https://github.com/zayatihamza/online-boutique-gitops
     targetRevision: main
-    path: apps/${{values.SERVICE_NAME}}
+    path: manifests/${{values.SERVICE_NAME}}
   destination:
     server: https://kubernetes.default.svc
     namespace: ${{values.NAMESPACE}}

@@ -104,7 +104,7 @@ spec:
       name: Pousser l'Application ArgoCD
       action: publish:github:pull-request
       input:
-        repoUrl: https://github.com/zayatihamza/gitops-repo
+        repoUrl: https://github.com/zayatihamza/online-boutique-gitops
         branchName: add-argocd-${{ parameters.serviceName }}
         title: "Ajout Application ArgoCD pour ${{ parameters.serviceName }}"
         sourcePath: ./argocd
