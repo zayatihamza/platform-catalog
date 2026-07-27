@@ -96,7 +96,7 @@ spec:
           Ce snippet doit être copié dans le tableau `triggers` du fichier
           github-listener.yaml (EventListener existant, namespace cicd).
         sourcePath: ./tekton-trigger
-
+        update: true
     - id: push-argocd
       name: Pousser l'Application ArgoCD
       action: publish:github:pull-request
