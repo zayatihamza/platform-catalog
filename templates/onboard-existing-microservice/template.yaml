@@ -97,6 +97,7 @@ spec:
           github-listener.yaml (EventListener existant, namespace cicd).
         sourcePath: ./tekton-trigger
         update: true
+
     - id: push-argocd
       name: Pousser l'Application ArgoCD
       action: publish:github:pull-request
@@ -106,6 +107,7 @@ spec:
         title: "Ajout Application ArgoCD pour ${{ parameters.serviceName }}"
         description: "Ajout automatique de l'Application ArgoCD pour ${{ parameters.serviceName }}"
         sourcePath: ./argocd
+        update: true
 
     - id: register
       name: Enregistrer le composant dans le Catalog
