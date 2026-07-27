@@ -78,7 +78,7 @@ spec:
       name: Pousser catalog-info.yaml
       action: publish:github:pull-request
       input:
-        repoUrl: repoUrl: github.com?owner=zayatihamza&repo=platform-catalog
+        repoUrl: github.com?owner=zayatihamza&repo=platform-catalog
         branchName: add-catalog-${{ parameters.serviceName }}
         title: "Ajout catalog-info pour ${{ parameters.serviceName }}"
         description: Ajouté automatiquement par le template Developer Hub
@@ -88,7 +88,7 @@ spec:
       name: Pousser le snippet Trigger
       action: publish:github:pull-request
       input:
-        repoUrl: repoUrl: github.com?owner=zayatihamza&repo=platform-catalog
+        repoUrl: github.com?owner=zayatihamza&repo=platform-catalog
         branchName: add-trigger-${{ parameters.serviceName }}
         title: "⚠️ À fusionner manuellement : Trigger pour ${{ parameters.serviceName }}"
         description: >
