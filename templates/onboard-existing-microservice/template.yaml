@@ -83,6 +83,7 @@ spec:
         title: "Ajout catalog-info pour ${{ parameters.serviceName }}"
         description: Ajouté automatiquement par le template Developer Hub
         sourcePath: ./catalog
+        update: true
 
     - id: push-trigger-snippet
       name: Pousser le snippet Trigger
