@@ -1,13 +1,11 @@
 apiVersion: backstage.io/v1alpha1
-kind: Location
+kind: Component
 metadata:
-  name: platform-catalog-entities
+  name: shoppingassistantservice
+  annotations:
+    github.com/project-slug: https://github.com/zayatihamza/microservices-demo
 spec:
-  targets:
-    - ./systems/online-boutique.yaml
-    - ./groups/team-online-boutique.yaml
-    - ./resources/argocd.yaml
-    - ./resources/tekton.yaml
-    - ./resources/sonarqube.yaml
-    - ./resources/keycloak.yaml
-    - ./templates/onboard-existing-microservice/template.yaml
+  type: service
+  owner: platform-team
+  lifecycle: production
+  system: online-boutique
