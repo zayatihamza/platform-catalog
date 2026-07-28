@@ -113,7 +113,7 @@ spec:
       name: Enregistrer le composant dans le Catalog
       action: catalog:register
       input:
-        repoContentsUrl: ${{ steps['push-catalog-info'].output.contentsUrl }}
+        repoContentsUrl: https://github.com/zayatihamza/platform-catalog/blob/${{ steps['push-catalog-info'].output.targetBranchName }}
         catalogInfoPath: /catalog-info.yaml
 
   output:
