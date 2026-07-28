@@ -1,0 +1,39 @@
+# À copier manuellement dans le tableau `triggers` du fichier
+# github-listener.yaml (EventListener, namespace cicd)
+- name: trigger-shoppingassistantservice
+  bindings:
+    - kind: TriggerBinding
+      ref: github-push-binding
+    - kind: TriggerBinding
+      ref: sonarqube-token-binding
+    - kind: TriggerBinding
+      ref: cel-extensions-binding
+  interceptors:
+    - ref:
+        kind: ClusterInterceptor
+        name: github
+      params:
+        - name: secretRef
+          value:
+            secretKey: secret
+            secretName: github-webhook-secret
+        - name: eventTypes
+          value: ["push"]
+    - ref:
+        kind: ClusterInterceptor
+        name: cel
+      params:
+        - name: filter
+          value: >-
+            body.ref == 'refs/heads/main' && body.commits.exists(c,
+            c.added.exists(f, f.startsWith('src/shoppingassistantservice/')) ||
+            c.modified.exists(f, f.startsWith('src/shoppingassistantservice/')) ||
+            c.removed.exists(f, f.startsWith('src/shoppingassistantservice/')))
+        - name: overlays
+          value:
+            - key: service_name
+              expression: "'shoppingassistantservice'"
+            - key: sonar_project_key
+              expression: "'online-boutique-shoppingassistantservice'"
+  template:
+    ref: microservice-pipeline-template
