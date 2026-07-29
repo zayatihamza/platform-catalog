@@ -3,124 +3,96 @@ kind: Template
 metadata:
   name: onboard-existing-microservice
   title: Onboard Existing Microservice
-  description: >
-    Branche un microservice existant sur la plateforme : ajoute son
-    catalog-info, génère le snippet de Trigger Tekton (à fusionner dans
-    l'EventListener) et l'Application ArgoCD.
-  tags:
-    - paas
-    - tekton
-    - argocd
 spec:
   owner: platform-team
   type: service
-
   parameters:
-    - title: Informations du service
-      required:
-        - serviceName
-        - repoUrl
-        - namespace
+    - title: Service info
+      required: [serviceName, repoUrl]
       properties:
         serviceName:
-          title: Nom du service
           type: string
-          pattern: '^[a-z0-9-]+$'
-
         repoUrl:
-          title: URL du repo GitHub
           type: string
-          description: "Lien du repo GitHub contenant le code source (monorepo Online Boutique)"
-          default: "https://github.com/zayatihamza/microservices-demo"
-
         namespace:
-          title: Namespace de déploiement
           type: string
-          description: Namespace OKD cible pour ArgoCD
-          enum:
-            - online-boutique-dev
-            - online-boutique-test
-            - online-boutique-prod
-          default: online-boutique-dev
-
+          default: default
   steps:
-    - id: generate-catalog-info
-      name: Générer catalog-info.yaml
-      action: fetch:template
+    - id: create-webhook
+      name: Create GitHub webhook
+      action: github:webhook
       input:
-        url: ./skeletons/catalog-info
-        targetPath: ./catalog
-        values:
-          serviceName: ${{ parameters.serviceName }}
-          repoUrl: ${{ parameters.repoUrl }}
+        repoUrl: ${{ parameters.repoUrl }}
+        webhookUrl: https://whomever-life-tacking.ngrok-free.dev/webhook/generic
+        webhookSecret: ${{ secrets.githubWebhookSecret }}
+        events: ["push"]
+        contentType: json
 
-    - id: generate-trigger-snippet
-      name: Générer le snippet Trigger Tekton
-      action: fetch:template
+    - id: create-argocd-app
+      name: Create ArgoCD Application
+      action: kubernetes:create
       input:
-        url: ./skeletons/tekton-trigger
-        targetPath: ./tekton-trigger
-        values:
-          SERVICE_NAME: ${{ parameters.serviceName }}
+        namespaced: true
+        namespace: argocd
+        manifest: |
+          apiVersion: argoproj.io/v1alpha1
+          kind: Application
+          metadata:
+            name: ${{ parameters.serviceName }}
+            namespace: argocd
+          spec:
+            project: default
+            source:
+              repoURL: https://github.com/zayatihamza/online-boutique-gitops
+              targetRevision: main
+              path: manifests/${{ parameters.serviceName }}
+            destination:
+              server: https://kubernetes.default.svc
+              namespace: ${{ parameters.namespace }}
+            syncPolicy:
+              automated:
+                selfHeal: true
+                prune: true
+              syncOptions:
+                - CreateNamespace=true
 
-    - id: generate-argocd-app
-      name: Générer l'Application ArgoCD
-      action: fetch:template
+    - id: trigger-first-pipelinerun
+      name: Trigger initial build PipelineRun
+      action: kubernetes:create
       input:
-        url: ./skeletons/argocd-application
-        targetPath: ./argocd
-        values:
-          SERVICE_NAME: ${{ parameters.serviceName }}
-          NAMESPACE: ${{ parameters.namespace }}
-          REPO_URL: ${{ parameters.repoUrl }}
-
-    - id: push-catalog-info
-      name: Pousser catalog-info.yaml
-      action: publish:github:pull-request
-      input:
-        repoUrl: github.com?owner=zayatihamza&repo=platform-catalog
-        branchName: add-catalog-${{ parameters.serviceName }}
-        title: "Ajout catalog-info pour ${{ parameters.serviceName }}"
-        description: Ajouté automatiquement par le template Developer Hub
-        sourcePath: ./catalog
-        update: true
-
-    - id: push-trigger-snippet
-      name: Pousser le snippet Trigger
-      action: publish:github:pull-request
-      input:
-        repoUrl: github.com?owner=zayatihamza&repo=platform-catalog
-        branchName: add-trigger-${{ parameters.serviceName }}
-        title: "⚠️ À fusionner manuellement : Trigger pour ${{ parameters.serviceName }}"
-        description: >
-          Ce snippet doit être copié dans le tableau `triggers` du fichier
-          github-listener.yaml (EventListener existant, namespace cicd).
-        sourcePath: ./tekton-trigger
-        update: true
-
-    - id: push-argocd
-      name: Pousser l'Application ArgoCD
-      action: publish:github:pull-request
-      input:
-        repoUrl: github.com?owner=zayatihamza&repo=online-boutique-gitops
-        branchName: add-argocd-${{ parameters.serviceName }}
-        title: "Ajout Application ArgoCD pour ${{ parameters.serviceName }}"
-        description: "Ajout automatique de l'Application ArgoCD pour ${{ parameters.serviceName }}"
-        sourcePath: ./argocd
-        update: true
-
-    - id: register
-      name: Enregistrer le composant dans le Catalog
-      action: catalog:register
-      input:
-        repoContentsUrl: https://github.com/zayatihamza/platform-catalog/blob/${{ steps['push-catalog-info'].output.targetBranchName }}
-        catalogInfoPath: /catalog-info.yaml
-
-  output:
-    links:
-      - title: PR catalog-info
-        url: ${{ steps['push-catalog-info'].output.remoteUrl }}
-      - title: PR Trigger Tekton (à fusionner manuellement)
-        url: ${{ steps['push-trigger-snippet'].output.remoteUrl }}
-      - title: PR Application ArgoCD
-        url: ${{ steps['push-argocd'].output.remoteUrl }}
+        namespaced: true
+        namespace: cicd
+        manifest: |
+          apiVersion: tekton.dev/v1
+          kind: PipelineRun
+          metadata:
+            generateName: microservice-pipeline-run-onboard-
+            namespace: cicd
+          spec:
+            pipelineRef:
+              name: microservice-pipeline-generic
+            taskRunTemplate:
+              serviceAccountName: pipeline-sa
+            params:
+              - {name: SERVICENAME, value: "${{ parameters.serviceName }}"}
+              - {name: GITREPOURL, value: "${{ parameters.repoUrl }}"}
+              - {name: GITREVISION, value: "main"}
+              - {name: IMAGENAME, value: "image-registry.openshift-image-registry.svc:5000/cicd/${{ parameters.serviceName }}"}
+              - {name: SONARHOSTURL, value: "http://sonarqube-sonarqube.sonarqube.svc:9000"}
+              - {name: SONARPROJECTKEY, value: "${{ parameters.serviceName }}"}
+              - {name: SONARTOKEN, value: "${{ secrets.sonarToken }}"}
+              - {name: GITOPSREPOURL, value: "https://github.com/zayatihamza/online-boutique-gitops"}
+              - {name: NAMESPACE, value: "${{ parameters.namespace }}"}
+            workspaces:
+              - name: shared-workspace
+                volumeClaimTemplate:
+                  spec:
+                    accessModes: [ReadWriteOnce]
+                    resources: {requests: {storage: 1Gi}}
+                    storageClassName: thin-csi
+              - name: gitops-workspace
+                volumeClaimTemplate:
+                  spec:
+                    accessModes: [ReadWriteOnce]
+                    resources: {requests: {storage: 500Mi}}
+                    storageClassName: thin-csi
