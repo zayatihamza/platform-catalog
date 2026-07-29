@@ -8,21 +8,26 @@ spec:
   type: service
   parameters:
     - title: Service info
-      required: [serviceName, repoUrl]
+      required: [serviceName, owner, repo]
       properties:
         serviceName:
           type: string
-        repoUrl:
+        owner:
           type: string
+          description: "Nom du compte/organisation GitHub, ex: zayatihamza"
+        repo:
+          type: string
+          description: "Nom du repo GitHub, ex: test-generic-repo"
         namespace:
           type: string
           default: default
+
   steps:
     - id: create-webhook
       name: Create GitHub webhook
       action: github:webhook
       input:
-        repoUrl: ${{ parameters.repoUrl }}
+        repoUrl: "github.com?owner=${{ parameters.owner }}&repo=${{ parameters.repo }}"
         webhookUrl: https://whomever-life-tacking.ngrok-free.dev/webhook/generic
         webhookSecret: ${{ secrets.githubWebhookSecret }}
         events: ["push"]
@@ -75,7 +80,7 @@ spec:
               serviceAccountName: pipeline-sa
             params:
               - {name: SERVICENAME, value: "${{ parameters.serviceName }}"}
-              - {name: GITREPOURL, value: "${{ parameters.repoUrl }}"}
+              - {name: GITREPOURL, value: "https://github.com/${{ parameters.owner }}/${{ parameters.repo }}"}
               - {name: GITREVISION, value: "main"}
               - {name: IMAGENAME, value: "image-registry.openshift-image-registry.svc:5000/cicd/${{ parameters.serviceName }}"}
               - {name: SONARHOSTURL, value: "http://sonarqube-sonarqube.sonarqube.svc:9000"}
