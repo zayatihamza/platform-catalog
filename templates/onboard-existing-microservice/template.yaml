@@ -14,10 +14,8 @@ spec:
           type: string
         owner:
           type: string
-          description: "Nom du compte/organisation GitHub, ex: zayatihamza"
         repo:
           type: string
-          description: "Nom du repo GitHub, ex: test-generic-repo"
         namespace:
           type: string
           default: default
@@ -35,11 +33,14 @@ spec:
 
     - id: create-argocd-app
       name: Create ArgoCD Application
-      action: kubernetes:create
+      action: http:backstage:request
       input:
-        namespaced: true
-        namespace: argocd
-        manifest: |
+        method: POST
+        path: https://api.okd.3s.lab:6443/apis/argoproj.io/v1alpha1/namespaces/argocd/applications
+        headers:
+          Authorization: Bearer ${{ secrets.k8sSaToken }}
+          Content-Type: application/json
+        body:
           apiVersion: argoproj.io/v1alpha1
           kind: Application
           metadata:
@@ -63,11 +64,14 @@ spec:
 
     - id: trigger-first-pipelinerun
       name: Trigger initial build PipelineRun
-      action: kubernetes:create
+      action: http:backstage:request
       input:
-        namespaced: true
-        namespace: cicd
-        manifest: |
+        method: POST
+        path: https://api.okd.3s.lab:6443/apis/tekton.dev/v1/namespaces/cicd/pipelineruns
+        headers:
+          Authorization: Bearer ${{ secrets.k8sSaToken }}
+          Content-Type: application/json
+        body:
           apiVersion: tekton.dev/v1
           kind: PipelineRun
           metadata:
