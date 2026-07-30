@@ -1,17 +1,17 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: ${{values.SERVICE_NAME}}
+  name: ${{ values.serviceName }}
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/zayatihamza/online-boutique-gitops
     targetRevision: main
-    path: manifests/${{values.SERVICE_NAME}}
+    path: manifests/${{ values.serviceName }}
   destination:
     server: https://kubernetes.default.svc
-    namespace: ${{values.NAMESPACE}}
+    namespace: ${{ values.namespace }}
   syncPolicy:
     automated:
       prune: true

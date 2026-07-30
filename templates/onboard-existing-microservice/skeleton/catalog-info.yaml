@@ -4,6 +4,7 @@ metadata:
   name: ${{ values.serviceName }}
   description: "Microservice ${{ values.serviceName }} onboardé via self-service RHDH"
   annotations:
+    github.com/project-slug: ${{ values.owner }}/${{ values.repo }}
     argocd/app-name: ${{ values.serviceName }}
     backstage.io/kubernetes-namespace: ${{ values.namespace }}
   tags:
