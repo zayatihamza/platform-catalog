@@ -19,6 +19,14 @@ spec:
         namespace:
           type: string
           default: default
+    - title: Authentication
+      required: [k8sToken]
+      properties:
+        k8sToken:
+          type: string
+          ui:field: Secret
+          ui:widget: password
+          description: "Token du ServiceAccount pipeline-sa (contenu de rhdh-sa-token.txt)"
 
   steps:
     - id: create-webhook
@@ -38,7 +46,7 @@ spec:
         method: POST
         path: https://api.okd.3s.lab:6443/apis/argoproj.io/v1alpha1/namespaces/argocd/applications
         headers:
-          Authorization: Bearer ${{ secrets.k8sSaToken }}
+          Authorization: Bearer ${{ secrets.k8sToken }}
           Content-Type: application/json
         body:
           apiVersion: argoproj.io/v1alpha1
@@ -69,7 +77,7 @@ spec:
         method: POST
         path: https://api.okd.3s.lab:6443/apis/tekton.dev/v1/namespaces/cicd/pipelineruns
         headers:
-          Authorization: Bearer ${{ secrets.k8sSaToken }}
+          Authorization: Bearer ${{ secrets.k8sToken }}
           Content-Type: application/json
         body:
           apiVersion: tekton.dev/v1
