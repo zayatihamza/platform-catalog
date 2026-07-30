@@ -19,11 +19,6 @@ spec:
         namespace:
           type: string
           default: default
-        sonarToken:
-          type: string
-          ui:widget: password
-          description: "Token SonarQube pour ce projet"
-          default: ""
 
   steps:
     - id: create-webhook
@@ -99,7 +94,7 @@ spec:
               - name: SONARPROJECTKEY
                 value: "${{ parameters.serviceName }}"
               - name: SONARTOKEN
-                value: "${{ parameters.sonarToken }}"
+                value: "squ_REMPLACEZ_PAR_VOTRE_TOKEN_SONAR"
               - name: GITOPSREPOURL
                 value: "https://github.com/zayatihamza/online-boutique-gitops"
               - name: NAMESPACE
