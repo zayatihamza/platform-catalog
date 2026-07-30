@@ -81,15 +81,15 @@ spec:
             taskRunTemplate:
               serviceAccountName: pipeline-sa
             params:
-              - {name: SERVICENAME, value: "${{ parameters.serviceName }}"}
-              - {name: GITREPOURL, value: "https://github.com/${{ parameters.owner }}/${{ parameters.repo }}"}
-              - {name: GITREVISION, value: "main"}
-              - {name: IMAGENAME, value: "image-registry.openshift-image-registry.svc:5000/cicd/${{ parameters.serviceName }}"}
-              - {name: SONARHOSTURL, value: "http://sonarqube-sonarqube.sonarqube.svc:9000"}
-              - {name: SONARPROJECTKEY, value: "${{ parameters.serviceName }}"}
-              - {name: SONARTOKEN, value: "${{ secrets.sonarToken }}"}
-              - {name: GITOPSREPOURL, value: "https://github.com/zayatihamza/online-boutique-gitops"}
-              - {name: NAMESPACE, value: "${{ parameters.namespace }}"}
+              - {name: SERVICENAME, type: string, value: "${{ parameters.serviceName }}"}
+              - {name: GITREPOURL, type: string, value: "https://github.com/${{ parameters.owner }}/${{ parameters.repo }}"}
+              - {name: GITREVISION, type: string, value: "main"}
+              - {name: IMAGENAME, type: string, value: "image-registry.openshift-image-registry.svc:5000/cicd/${{ parameters.serviceName }}"}
+              - {name: SONARHOSTURL, type: string, value: "http://sonarqube-sonarqube.sonarqube.svc:9000"}
+              - {name: SONARPROJECTKEY, type: string, value: "${{ parameters.serviceName }}"}
+              - {name: SONARTOKEN, type: string, value: "${{ secrets.sonarToken }}"}
+              - {name: GITOPSREPOURL, type: string, value: "https://github.com/zayatihamza/online-boutique-gitops"}
+              - {name: NAMESPACE, type: string, value: "${{ parameters.namespace }}"}
             workspaces:
               - name: shared-workspace
                 volumeClaimTemplate:
