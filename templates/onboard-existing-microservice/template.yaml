@@ -94,7 +94,7 @@ spec:
               - name: SONARPROJECTKEY
                 value: "${{ parameters.serviceName }}"
               - name: SONARTOKEN
-                value: "squ_REMPLACEZ_PAR_VOTRE_TOKEN_SONAR"
+                value: "sqa_e3e738aeb2e6c535d74e9093e7455678e8f76d5f"
               - name: GITOPSREPOURL
                 value: "https://github.com/zayatihamza/online-boutique-gitops"
               - name: NAMESPACE
