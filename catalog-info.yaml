@@ -11,3 +11,4 @@ spec:
     - ./resources/sonarqube.yaml
     - ./resources/keycloak.yaml
     - ./templates/onboard-existing-microservice/template.yaml
+    - ./resources/services/*/catalog-info.yaml
